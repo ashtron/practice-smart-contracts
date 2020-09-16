@@ -26,6 +26,7 @@ contract MultisigWallet {
         require(signers[msg.sender]);
         _;
     }
+
     modifier spotAvailable {
         require(numSigners < maxSigners);
         _;
@@ -37,8 +38,10 @@ contract MultisigWallet {
         addSigner(owner);
     }
 
-    // add check that signer hasn't already been added
     function addSigner(address _newSigner) onlyOwner spotAvailable public {
+        // To avoid incrementing `numSigners` if address is already a signer
+        require(!signers[_newSigner]);
+
         signers[_newSigner] = true;
         numSigners += 1;
     }
