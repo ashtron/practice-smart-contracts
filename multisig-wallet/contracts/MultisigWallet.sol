@@ -3,10 +3,10 @@
 pragma solidity ^0.7.0;
 
 contract MultisigWallet {
-    address public owner;
-    uint public maxSigners;
     uint public numSigners;
     mapping(address => bool) public signers;
+    mapping(address => bool[]) public votes;
+    uint quorum;
     TransferProposal[] public transferProposals;
 
     enum Status { Voting, Rejected, Executed }
@@ -20,18 +20,8 @@ contract MultisigWallet {
         Status status;
     }
 
-    modifier onlyOwner {
-        require(msg.sender == owner);
-        _;
-    }
-
     modifier onlySigner {
         require(signers[msg.sender]);
-        _;
-    }
-
-    modifier spotAvailable {
-        require(numSigners < maxSigners);
         _;
     }
 
@@ -40,44 +30,47 @@ contract MultisigWallet {
         _;
     }
 
-    constructor() {
-        maxSigners = 3;
-        owner = msg.sender;
-        addSigner(owner);
+    modifier hasntVoted(uint _proposalId) {
+        require(!votes[msg.sender][_proposalId]);
+        _;
     }
 
-    function addSigner(address _newSigner) onlyOwner spotAvailable public {
-        // Avoid incrementing `numSigners` if address is already a signer
-        require(!signers[_newSigner]);
+    constructor(address[] memory _signers, uint _quorum) {
+        numSigners = _signers.length;
+        quorum = _quorum;
 
-        signers[_newSigner] = true;
-        numSigners += 1;
+        for (uint i = 0; i < numSigners; i++) {
+            signers[_signers[i]] = true;
+            votes[_signers[i]] = new bool[](numSigners);
+        }
     }
 
     function deposit() onlySigner public payable {}
 
-    function proposeTransfer(address payable _receiver, uint _amount) onlySigner public {
+    function proposeTransfer(address payable _receiver, uint _amount) onlySigner public returns (bool) {
         transferProposals.push(TransferProposal({
             id: transferProposals.length,
             receiver: _receiver,
             amount: _amount,
-            yesVotes: 0,
+            yesVotes: 1,
             noVotes: 0,
             status: Status.Voting
         }));
+
+        votes[msg.sender][transferProposals.length - 1] = true;
     }
 
-    function voteOnTransferProposal(uint _proposalId, bool _vote) onlySigner hasVotingStatus(_proposalId) public {
+    function voteOnTransferProposal(uint _proposalId, bool _vote) onlySigner hasVotingStatus(_proposalId) hasntVoted(_proposalId) public {
         if (_vote) {
             transferProposals[_proposalId].yesVotes += 1;
 
-            if (transferProposals[_proposalId].yesVotes >= 2) {
+            if (transferProposals[_proposalId].yesVotes >= quorum) {
                 executeTransfer(_proposalId);
             }
         } else {
             transferProposals[_proposalId].noVotes += 1;
 
-            if (transferProposals[_proposalId].noVotes >= 1) {
+            if (transferProposals[_proposalId].noVotes > (numSigners - quorum)) {
                 transferProposals[_proposalId].status = Status.Rejected;
             }
         }
