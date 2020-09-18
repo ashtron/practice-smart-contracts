@@ -6,8 +6,6 @@ contract("MultisigWallet.deposit", async accounts => {
     let mw = await MultisigWallet.deployed();
 
     await mw.deposit({ from: accounts[0], value: 21 });
-
-    await mw.addSigner(accounts[1]);
     await mw.deposit({ from: accounts[1], value: 21 });
 
     let contractBalance = await web3.eth.getBalance(mw.address);
@@ -15,10 +13,9 @@ contract("MultisigWallet.deposit", async accounts => {
     assert.equal(contractBalance, 42);
   });
 
-  it("should not allow deposits from others", async () => {
+  it("should not allow deposits from non-signers", async () => {
     let mw = await MultisigWallet.deployed();
 
-    // accounts[2] has not been added as a signer
-    await truffleAssert.reverts(mw.deposit({ from: accounts[2], value: 21 }));
+    await truffleAssert.reverts(mw.deposit({ from: accounts[3], value: 21 }), "Only signers can call this function");
   });
 });

@@ -2,7 +2,7 @@ const MultisigWallet = artifacts.require("MultisigWallet");
 const truffleAssert = require("truffle-assertions");
 
 contract("MultisigWallet.voteOnTransferProposal", async accounts => {
-    it("should allow signers to vote on a transfer proposal", async () => {
+    it("should allow signers to vote on a transfer proposal and execute when quorum is reached", async () => {
         let mw = await MultisigWallet.deployed();
 
         let initialBalance = await web3.eth.getBalance(accounts[3]);
@@ -22,33 +22,25 @@ contract("MultisigWallet.voteOnTransferProposal", async accounts => {
 
         await mw.proposeTransfer(accounts[4], 21, { from: accounts[1] });
         
-        await truffleAssert.reverts(mw.voteOnTransferProposal(1, true, { from: accounts[1] }));
+        await truffleAssert.reverts(mw.voteOnTransferProposal(1, true, { from: accounts[1] }), "Already voted on this proposal");
     });
 
-    //     await mw.addSigner(accounts[1]);
-    //     await mw.addSigner(accounts[2]);
+    it("should not allow non-signers to vote on a transfer proposal", async () => {
+        let mw = await MultisigWallet.deployed();
 
-    //     await mw.proposeTransfer(accounts[3], 21);
+        await truffleAssert.reverts(mw.voteOnTransferProposal(1, true, { from: accounts[3] }), "Only signers can call this function");
+    });
 
-    //     await mw.voteOnTransferProposal(0, true);
+    it("should mark unpassed proposals Rejected", async () => {
+        let mw = await MultisigWallet.deployed();
 
-    //     assert.isTrue(false);
-    // });
+        await mw.proposeTransfer(accounts[4], 21);
 
-    // it("should not allow others to vote on a transfer proposal", async () => {
-    //     let mw = await MultisigWallet.deployed();
+        await mw.voteOnTransferProposal(2, false, { from: accounts[1] });
+        await mw.voteOnTransferProposal(2, false, { from: accounts[2] });
 
-    //     assert.isTrue(false);
-    // });
+        let proposal = await mw.transferProposals(2);
 
-    // it("should execute proposal when quorum is reached", async () => {
-    //     let mw = await MultisigWallet.deployed();
-
-    //     assert.isTrue(false);
-    // });
-
-    // it("should mark unpassed proposals Rejected", async () => {
-    //     let mw = await MultisigWallet.deployed();
-
-    //     assert.isTrue(false);
+        assert.isTrue(proposal.status.words[0] === 1);
+    });
 });

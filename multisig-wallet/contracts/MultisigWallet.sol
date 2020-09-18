@@ -42,7 +42,6 @@ contract MultisigWallet {
 
         for (uint i = 0; i < numSigners; i++) {
             signers[_signers[i]] = true;
-            // votes[_signers[i]] = new bool[](numSigners);
         }
     }
 
@@ -58,7 +57,6 @@ contract MultisigWallet {
             status: Status.Voting
         }));
 
-        // mapping(address => mapping(uint => bool)) public votes;
         votes[msg.sender][transferProposals.length - 1] = true;
     }
 

@@ -6,9 +6,6 @@ contract("MultisigWallet.proposeTransfer", async accounts => {
     it("should allow signers to create transfer proposals", async () => {
         let mw = await MultisigWallet.deployed();
 
-        await mw.addSigner(accounts[1]);
-        await mw.addSigner(accounts[2]);
-
         await mw.proposeTransfer(accounts[3], 21);
 
         let newProposal = await mw.transferProposals(0);
@@ -17,7 +14,7 @@ contract("MultisigWallet.proposeTransfer", async accounts => {
             id: 0,
             receiver: accounts[3],
             amount: 21,
-            yesVotes: 0,
+            yesVotes: 1,
             noVotes: 0,
             status: 0
         }
@@ -34,9 +31,9 @@ contract("MultisigWallet.proposeTransfer", async accounts => {
         assert.isTrue(_.isEqual(newProposalData, expectedProposalData));
     });
 
-    // it("should not allow others to create transfer proposals", async () => {
-    //     let mw = await MultisigWallet.deployed();
+    it("should not allow non-signers to create transfer proposals", async () => {
+        let mw = await MultisigWallet.deployed();
 
-    //     await truffleAssert.reverts(mw.proposeTransfer(accounts[4], 21, { from: accounts[3]} ));
-    // });
+        await truffleAssert.reverts(mw.proposeTransfer(accounts[4], 21, { from: accounts[3]} ), "Only signers can call this function");
+    });
 });
