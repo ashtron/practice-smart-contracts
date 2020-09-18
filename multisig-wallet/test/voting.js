@@ -9,6 +9,7 @@ contract("MultisigWallet.voteOnTransferProposal", async accounts => {
 
         await mw.deposit({ from: accounts[0], value: 21 });
 
+        // Proposal 0
         await mw.proposeTransfer(accounts[3], 21);
         await mw.voteOnTransferProposal(0, true, { from: accounts[1] });
         
@@ -20,6 +21,7 @@ contract("MultisigWallet.voteOnTransferProposal", async accounts => {
     it("should not allow signers to vote on a transfer proposal more than once", async () => {
         let mw = await MultisigWallet.deployed();
 
+        // Proposal 1
         await mw.proposeTransfer(accounts[4], 21, { from: accounts[1] });
         
         await truffleAssert.reverts(mw.voteOnTransferProposal(1, true, { from: accounts[1] }), "Already voted on this proposal");
@@ -34,6 +36,11 @@ contract("MultisigWallet.voteOnTransferProposal", async accounts => {
     it("should mark unpassed proposals Rejected", async () => {
         let mw = await MultisigWallet.deployed();
 
+        // Clear Proposal 1
+        mw.deposit({ from: accounts[0], value: 21 });
+        await mw.voteOnTransferProposal(1, true, { from: accounts[2] });
+
+        // Proposal 2
         await mw.proposeTransfer(accounts[4], 21);
 
         await mw.voteOnTransferProposal(2, false, { from: accounts[1] });
@@ -42,5 +49,14 @@ contract("MultisigWallet.voteOnTransferProposal", async accounts => {
         let proposal = await mw.transferProposals(2);
 
         assert.isTrue(proposal.status.words[0] === 1);
+    });
+
+    it("should not allow proposing a transfer if there's a pending transfer", async () => {
+        let mw = await MultisigWallet.deployed();
+
+        // Proposal 3
+        await mw.proposeTransfer(accounts[4], 21);
+
+        await truffleAssert.reverts(mw.proposeTransfer(accounts[4], 21), "There is already a pending proposal");
     });
 });
