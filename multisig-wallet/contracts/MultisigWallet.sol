@@ -5,7 +5,8 @@ pragma solidity ^0.7.0;
 contract MultisigWallet {
     uint public numSigners;
     mapping(address => bool) public signers;
-    mapping(address => bool[]) public votes;
+    // mapping(address => bool[]) public votes;
+    mapping(address => mapping(uint => bool)) public votes;
     uint quorum;
     TransferProposal[] public transferProposals;
 
@@ -21,17 +22,17 @@ contract MultisigWallet {
     }
 
     modifier onlySigner {
-        require(signers[msg.sender]);
+        require(signers[msg.sender], "Only signers can call this function");
         _;
     }
 
     modifier hasVotingStatus(uint _proposalId) {
-        require(transferProposals[_proposalId].status == Status.Voting);
+        require(transferProposals[_proposalId].status == Status.Voting, "Proposal does not have Voting status");
         _;
     }
 
     modifier hasntVoted(uint _proposalId) {
-        require(!votes[msg.sender][_proposalId]);
+        require(!votes[msg.sender][_proposalId], "Already voted on this proposal");
         _;
     }
 
@@ -41,13 +42,13 @@ contract MultisigWallet {
 
         for (uint i = 0; i < numSigners; i++) {
             signers[_signers[i]] = true;
-            votes[_signers[i]] = new bool[](numSigners);
+            // votes[_signers[i]] = new bool[](numSigners);
         }
     }
 
     function deposit() onlySigner public payable {}
 
-    function proposeTransfer(address payable _receiver, uint _amount) onlySigner public returns (bool) {
+    function proposeTransfer(address payable _receiver, uint _amount) onlySigner public {
         transferProposals.push(TransferProposal({
             id: transferProposals.length,
             receiver: _receiver,
@@ -57,6 +58,7 @@ contract MultisigWallet {
             status: Status.Voting
         }));
 
+        // mapping(address => mapping(uint => bool)) public votes;
         votes[msg.sender][transferProposals.length - 1] = true;
     }
 
@@ -76,6 +78,7 @@ contract MultisigWallet {
         }
     }
 
+    // Handle case where contract doesn't have enough funds.
     function executeTransfer(uint _proposalId) private {
         TransferProposal storage proposal = transferProposals[_proposalId];
 
