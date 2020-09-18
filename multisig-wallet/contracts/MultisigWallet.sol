@@ -4,11 +4,11 @@ pragma solidity ^0.7.0;
 
 contract MultisigWallet {
     uint public numSigners;
+    uint quorum;
+    bool proposalPending;
     mapping(address => bool) public signers;
     mapping(address => mapping(uint => bool)) public votes;
-    uint quorum;
     TransferProposal[] public transferProposals;
-    bool proposalPending;
 
     enum Status { Pending, Rejected, Executed }
 
@@ -20,6 +20,12 @@ contract MultisigWallet {
         uint noVotes;
         Status status;
     }
+    
+    event Deposit(address indexed sender, uint indexed amount);
+    event TransferProposed(address indexed proposer, uint indexed proposalId);
+    event Vote(address indexed voter, uint indexed proposalId, bool indexed vote);
+    event TransferRejected(uint indexed proposalId);
+    event TransferExecuted(uint indexed proposalId);
 
     modifier onlySigner {
         require(signers[msg.sender], "Only signers can call this function");
@@ -58,7 +64,9 @@ contract MultisigWallet {
         }
     }
 
-    function deposit() onlySigner public payable {}
+    function deposit() onlySigner public payable {
+        emit Deposit(msg.sender, msg.value);
+    }
 
     function proposeTransfer(address payable _receiver, uint _amount) onlySigner noPendingProposal public {
         transferProposals.push(TransferProposal({
@@ -72,6 +80,8 @@ contract MultisigWallet {
 
         proposalPending = true;
         votes[msg.sender][transferProposals.length - 1] = true;
+
+        emit TransferProposed(msg.sender, transferProposals.length - 1);
     }
 
     function voteOnTransferProposal(uint _proposalId, bool _vote) onlySigner isPending(_proposalId) hasntVoted(_proposalId) public {
@@ -88,8 +98,11 @@ contract MultisigWallet {
             if (transferProposals[_proposalId].noVotes > (numSigners - quorum)) {
                 transferProposals[_proposalId].status = Status.Rejected;
                 proposalPending = false;
+                emit TransferRejected(_proposalId);
             }
         }
+
+        emit Vote(msg.sender, _proposalId, _vote);
     }
 
     function executeTransfer(uint _proposalId) sufficientBalance(_proposalId) private {
@@ -98,6 +111,8 @@ contract MultisigWallet {
         proposal.receiver.transfer(proposal.amount);
 
         proposal.status = Status.Executed;
+
+        emit TransferExecuted(_proposalId);
     }
 
     fallback() external {

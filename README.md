@@ -3,4 +3,6 @@
 ## Multisig Wallet
 
 ### To Do
-* Allow arbitrary number of signers (currently hardcoded for three)
+* ~~Allow arbitrary number of signers~~
+* ~~Only allow one pending transaction at a time~~
+* Simple front-end
