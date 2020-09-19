@@ -10187,10 +10187,106 @@
       "links": {},
       "address": "0x7814161a53fE2b572A9C29386E4281070c0b0102",
       "transactionHash": "0x56b4e5cd9ed05b1f98cd76998166b920312566b9e538228da6b24b5b676d4576"
+    },
+    "1600529554040": {
+      "events": {
+        "0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "sender",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "Deposit",
+          "type": "event"
+        },
+        "0xf49c7151a34f944c290bea0b71e18d61f02bfd24115ac372517b6ba94ebd9546": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "proposalId",
+              "type": "uint256"
+            }
+          ],
+          "name": "TransferExecuted",
+          "type": "event"
+        },
+        "0xd6a8c8c7a47bed7c3562b43f5528822886d1e0845247598294d2cf8e56d57e0d": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "proposer",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "proposalId",
+              "type": "uint256"
+            }
+          ],
+          "name": "TransferProposed",
+          "type": "event"
+        },
+        "0x1f4f8a94e17d25044030f376d297769c8f9a1a2a0616e36b498a1e7370b5863f": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "proposalId",
+              "type": "uint256"
+            }
+          ],
+          "name": "TransferRejected",
+          "type": "event"
+        },
+        "0x8d85a70fd2c5d140a4a01143492d27ff82cfad4cead313e66c53f39b0feb5e0f": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "voter",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "proposalId",
+              "type": "uint256"
+            },
+            {
+              "indexed": true,
+              "internalType": "bool",
+              "name": "vote",
+              "type": "bool"
+            }
+          ],
+          "name": "Vote",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0x7814161a53fE2b572A9C29386E4281070c0b0102",
+      "transactionHash": "0x56b4e5cd9ed05b1f98cd76998166b920312566b9e538228da6b24b5b676d4576"
     }
   },
   "schemaVersion": "3.2.4",
-  "updatedAt": "2020-09-19T13:54:17.171Z",
+  "updatedAt": "2020-09-19T15:32:51.542Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

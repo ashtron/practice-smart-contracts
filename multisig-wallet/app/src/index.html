@@ -2,17 +2,31 @@
     <head></head>
 
     <body>
-        <label for="amount">Amount:</label>
-        <input type="text" id="amount" placeholder="e.g. 95" />
-    
-        <label for="receiver">To address:</label>
-        <input
-          type="text"
-          id="receiver"
-          placeholder="e.g. 0x93e66d9baea28c17d9fc393b53e3fbdd76899dae"
-        />
+        <div id="current-proposal">
+            <h3>Current Proposal</h3>
+                <button onclick="App.deposit()">Make a Deposit</button>
+            <p>
+                #<span id="proposal-number"></span>: Send <span id="amount"></span> wei to <span id="receiver"></span>
+                <button onclick="App.vote(true)">Vote For</button>
+                <button onclick="App.vote(false)">Vote Against</button>
+                <p>You voted: <span id="vote"></span></p>
+            </p>
+        </div>
 
-        <button onclick="App.proposeTransfer()">Propose Transfer</button>
+        <div id="propose-transfer">
+            <h3>Make a New Proposal</h3>
+            <label for="amount-input">Amount:</label>
+            <input type="text" id="amount-input" placeholder="e.g. 95" />
+        
+            <label for="receiver-input">To address:</label>
+            <input
+              type="text"
+              id="receiver-input"
+              placeholder="e.g. 0x93e66d9baea28c17d9fc393b53e3fbdd76899dae"
+            />
+    
+            <button onclick="App.proposeTransfer()">Propose Transfer</button>    
+        </div>
 
         <script src="index.js"></script>
     </body>

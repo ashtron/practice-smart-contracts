@@ -22,44 +22,57 @@ const App = {
       // Get accounts
       const accounts = await web3.eth.getAccounts();
       this.account = accounts[0];
-      // const { signers } = this.mw.methods;
-      // console.log(signers);
 
-      // this.refreshBalance();
+      this.getCurrentProposal();
     } catch (error) {
       console.error(error);
     }
   },
-  
-  // refreshBalance: async function() {
-  //   const { getBalance } = this.meta.methods;
-  //   const balance = await getBalance(this.account).call();
 
-  //   const balanceElement = document.getElementsByClassName("balance")[0];
-  //   balanceElement.innerHTML = balance;
-  // },
+  deposit: async function() {
+    const { deposit } = this.mw.methods;
+
+    await deposit().send({ from: this.account, value: 21 });
+  },
+
+  getCurrentProposal: async function() {
+    const { transferProposals } = this.mw.methods;
+    const currentProposal = await transferProposals(0).call();
+
+    const proposalNumber = document.getElementById("proposal-number"); 
+    const amount = document.getElementById("amount");
+    const receiver = document.getElementById("receiver");
+
+    proposalNumber.innerHTML = currentProposal.id;
+    amount.innerHTML = currentProposal.amount;
+    receiver.innerHTML = currentProposal.receiver;
+  },
 
   proposeTransfer: async function() {
-    const receiver = document.getElementById("receiver").value;
-    const amount = parseInt(document.getElementById("amount").value);
-    console.log(receiver);
+    const receiver = document.getElementById("receiver-input").value;
+    const amount = parseInt(document.getElementById("amount-input").value);
     console.log(amount);
 
     // this.setStatus("Initiating transaction... (please wait)");
 
     const { proposeTransfer } = this.mw.methods;
-    console.log(proposeTransfer);
     await proposeTransfer(receiver, amount).send({ from: this.account });
     // await sendCoin(receiver, amount).send({ from: this.account });
 
     // this.setStatus("Transaction complete!");
     // this.refreshBalance();
-  }
+  },
 
-  // setStatus: function(message) {
-  //   const status = document.getElementById("status");
-  //   status.innerHTML = message;
-  // },
+  vote: async function(choice) {
+    // const { voteOnTransferProposal } = this.mw.methods;
+    const { votes } = this.mw.methods;
+
+    // await voteOnTransferProposal(0, true).send({ from: this.account });
+    const voteResult = await votes(this.account, 0).call();
+
+    const vote = document.getElementById("vote");
+    vote.innerHTML = voteResult;
+  }
 };
 
 window.App = App;
@@ -81,19 +94,3 @@ window.addEventListener("load", function() {
 
   App.start();
 });
-
-
-
-
-
-// window.onload = function() {
-//     document.getElementById("connectButton").addEventListener("click", () => {
-//     ethereum.enable();
-//   });
-
-//   document.getElementById("getAccountsButton").addEventListener("click", async () => {
-//     const accounts = await ethereum.request({ method: 'eth_accounts' });
-//     console.log(accounts);
-//     // getAccountsResults.innerHTML = response.result[0] || 'Not able to get accounts';
-//   });
-// };
