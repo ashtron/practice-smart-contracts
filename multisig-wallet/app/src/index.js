@@ -31,8 +31,7 @@ const App = {
 
   deposit: async function() {
     const { deposit } = this.mw.methods;
-
-    await deposit().send({ from: this.account, value: 21 });
+    await deposit().send({ from: this.account, value: App.web3.utils.toWei("7", "ether") });
   },
 
   getCurrentProposal: async function() {
@@ -50,8 +49,7 @@ const App = {
 
   proposeTransfer: async function() {
     const receiver = document.getElementById("receiver-input").value;
-    const amount = parseInt(document.getElementById("amount-input").value);
-    console.log(amount);
+    const amount = String(App.web3.utils.toWei(document.getElementById("amount-input").value, "ether"));
 
     // this.setStatus("Initiating transaction... (please wait)");
 
@@ -64,11 +62,11 @@ const App = {
   },
 
   vote: async function(choice) {
-    // const { voteOnTransferProposal } = this.mw.methods;
+    const { voteOnTransferProposal } = this.mw.methods;
     const { votes } = this.mw.methods;
 
-    // await voteOnTransferProposal(0, true).send({ from: this.account });
-    const voteResult = await votes(this.account, 0).call();
+    await voteOnTransferProposal(1, true).send({ from: this.account });
+    const voteResult = await votes(this.account, 1).call();
 
     const vote = document.getElementById("vote");
     vote.innerHTML = voteResult;
