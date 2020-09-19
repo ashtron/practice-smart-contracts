@@ -6,6 +6,7 @@ contract MultisigWallet {
     uint public numSigners;
     uint quorum;
     bool proposalPending;
+    uint public numProposals;
     mapping(address => bool) public signers;
     mapping(address => mapping(uint => bool)) public votes;
     TransferProposal[] public transferProposals;
@@ -58,6 +59,7 @@ contract MultisigWallet {
         numSigners = _signers.length;
         quorum = _quorum;
         proposalPending = false;
+        numProposals = 0;
 
         for (uint i = 0; i < numSigners; i++) {
             signers[_signers[i]] = true;
@@ -80,6 +82,7 @@ contract MultisigWallet {
 
         proposalPending = true;
         votes[msg.sender][transferProposals.length - 1] = true;
+        numProposals += 1;
 
         emit TransferProposed(msg.sender, transferProposals.length - 1);
     }

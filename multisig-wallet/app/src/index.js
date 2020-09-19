@@ -23,6 +23,9 @@ const App = {
       const accounts = await web3.eth.getAccounts();
       this.account = accounts[0];
 
+      const { numProposals } = this.mw.methods;
+      this.currentProposalId = await numProposals().call() - 1;
+
       this.getCurrentProposal();
     } catch (error) {
       console.error(error);
@@ -31,19 +34,21 @@ const App = {
 
   deposit: async function() {
     const { deposit } = this.mw.methods;
-    await deposit().send({ from: this.account, value: App.web3.utils.toWei("7", "ether") });
+    const depositAmount = App.web3.utils.toWei(document.getElementById("deposit-amount").value, "ether");
+
+    await deposit().send({ from: this.account, value: depositAmount });
   },
 
   getCurrentProposal: async function() {
     const { transferProposals } = this.mw.methods;
-    const currentProposal = await transferProposals(0).call();
-
+    
+    const currentProposal = await transferProposals(this.currentProposalId).call();
     const proposalNumber = document.getElementById("proposal-number"); 
     const amount = document.getElementById("amount");
     const receiver = document.getElementById("receiver");
 
     proposalNumber.innerHTML = currentProposal.id;
-    amount.innerHTML = currentProposal.amount;
+    amount.innerHTML = App.web3.utils.toWei(currentProposal.amount, "ether");
     receiver.innerHTML = currentProposal.receiver;
   },
 
@@ -51,22 +56,16 @@ const App = {
     const receiver = document.getElementById("receiver-input").value;
     const amount = String(App.web3.utils.toWei(document.getElementById("amount-input").value, "ether"));
 
-    // this.setStatus("Initiating transaction... (please wait)");
-
     const { proposeTransfer } = this.mw.methods;
     await proposeTransfer(receiver, amount).send({ from: this.account });
-    // await sendCoin(receiver, amount).send({ from: this.account });
-
-    // this.setStatus("Transaction complete!");
-    // this.refreshBalance();
   },
 
   vote: async function(choice) {
     const { voteOnTransferProposal } = this.mw.methods;
     const { votes } = this.mw.methods;
 
-    await voteOnTransferProposal(1, true).send({ from: this.account });
-    const voteResult = await votes(this.account, 1).call();
+    await voteOnTransferProposal(this.currentProposalId, choice).send({ from: this.account });
+    const voteResult = await votes(this.account, this.currentProposalId).call();
 
     const vote = document.getElementById("vote");
     vote.innerHTML = voteResult;

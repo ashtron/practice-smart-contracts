@@ -1,12 +1,22 @@
 <html>
-    <head></head>
+    <head>
+        <title>Multisig Wallet</title>
+
+        <!-- <link rel="icon" href="assets/favicon.ico" type="image/ico"/> -->
+    </head>
 
     <body>
+        <div class="">
+            <label for="deposit-amount">Amount:</label>
+            <input type="text" id="deposit-amount" placeholder="e.g. 5" />
+    
+            <button onclick="App.deposit()">Make a Deposit</button>    
+        </div>
+
         <div id="current-proposal">
             <h3>Current Proposal</h3>
-                <button onclick="App.deposit()">Make a Deposit</button>
             <p>
-                #<span id="proposal-number"></span>: Send <span id="amount"></span> wei to <span id="receiver"></span>
+                #<span id="proposal-number"></span>: Send <span id="amount"></span> ether to <span id="receiver"></span>
                 <button onclick="App.vote(true)">Vote For</button>
                 <button onclick="App.vote(false)">Vote Against</button>
                 <p>You voted: <span id="vote"></span></p>
