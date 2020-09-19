@@ -26,7 +26,10 @@ const App = {
       const { numProposals } = this.mw.methods;
       this.currentProposalId = await numProposals().call() - 1;
 
-      this.getCurrentProposal();
+      if (this.currentProposalId >= 0) {
+        this.getCurrentProposal();
+      }
+      
     } catch (error) {
       console.error(error);
     }
@@ -40,16 +43,16 @@ const App = {
   },
 
   getCurrentProposal: async function() {
-    const { transferProposals } = this.mw.methods;
-    
-    const currentProposal = await transferProposals(this.currentProposalId).call();
-    const proposalNumber = document.getElementById("proposal-number"); 
-    const amount = document.getElementById("amount");
-    const receiver = document.getElementById("receiver");
+      const { transferProposals } = this.mw.methods;
+      
+      const currentProposal = await transferProposals(this.currentProposalId).call();
+      const proposalNumber = document.getElementById("proposal-number"); 
+      const amount = document.getElementById("amount");
+      const receiver = document.getElementById("receiver");
 
-    proposalNumber.innerHTML = currentProposal.id;
-    amount.innerHTML = App.web3.utils.toWei(currentProposal.amount, "ether");
-    receiver.innerHTML = currentProposal.receiver;
+      proposalNumber.innerHTML = currentProposal.id;
+      amount.innerHTML = App.web3.utils.toWei(currentProposal.amount, "ether");
+      receiver.innerHTML = currentProposal.receiver;
   },
 
   proposeTransfer: async function() {
